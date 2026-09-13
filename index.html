@@ -2378,8 +2378,15 @@ const Music = (() => {
 })();
 
 // Запуск при первом тапе (браузер требует взаимодействия)
-document.addEventListener('touchstart', () => Music.start(), { once: true });
-document.addEventListener('click', () => Music.start(), { once: true });
+let musicStarted = false;
+function tryStartMusic() {
+  if (musicStarted) return;
+  try { Music.start(); musicStarted = true; } catch(e) {}
+}
+document.addEventListener('touchstart', tryStartMusic, { passive: true });
+document.addEventListener('click', tryStartMusic, { passive: true });
+window.addEventListener('pointerdown', tryStartMusic);
+document.getElementById('btn-play').addEventListener('click', tryStartMusic);
 async function start() {
   ui.loadingText.innerText = 'ПОДКЛЮЧЕНИЕ К VK...';
   await initVK();
